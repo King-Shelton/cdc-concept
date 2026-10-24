@@ -5,303 +5,440 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>CDC App Concept</title>
 <meta name="description" content="A working concept for the ComfortDelGro Driving Centre app, by King Shelton.">
+<meta name="theme-color" content="#F2F3F5">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Semi+Condensed:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --blue: #1478F0;
-    --blue-deep: #0B3F86;
-    --ink: #13233A;
-    --muted: #5B6B80;
-    --line: #DCE3EC;
-    --tarmac: #2A3038;
-    --amber: #F2B705;
-    --paper: #F5F7FA;
-    --ok: #1E8E5A;
-    --bad: #C2410C;
+    --bg: #F2F3F5;
+    --card: #FFFFFF;
+    --ink: #0B0D12;
+    --ink-2: #5D636E;
+    --ink-3: #9CA1AA;
+    --hair: rgba(11, 13, 18, .08);
+    --fill: #EBECEF;
+    --accent: #0A62F0;
+    --accent-soft: #E9F0FE;
+    --amber: #F5B400;
+    --good: #0F7B57;
+    --bad: #D6431B;
+    --r: 20px;
+    --ease: cubic-bezier(.2, .8, .2, 1);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { height: 100%; }
-  body { font-family: Barlow, system-ui, sans-serif; color: var(--ink); background: #E3E8EF; -webkit-font-smoothing: antialiased; }
-  button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
-  button:focus-visible, input:focus-visible { outline: 3px solid var(--amber); outline-offset: 2px; }
+  body {
+    font-family: Geist, -apple-system, system-ui, sans-serif;
+    color: var(--ink); background: #E4E5E9;
+    -webkit-font-smoothing: antialiased; font-feature-settings: "ss01";
+    letter-spacing: -.01em;
+  }
+  button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; letter-spacing: inherit; -webkit-tap-highlight-color: transparent; }
+  button:focus-visible, input:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  svg.i { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+  .num { font-variant-numeric: tabular-nums; }
+  .press { transition: transform .15s var(--ease), background-color .15s; }
+  .press:active { transform: scale(.97); }
 
-  /* desktop: phone on the right, notes on the left */
-  .stage { min-height: 100%; display: flex; align-items: center; justify-content: center; gap: 56px; padding: 32px 24px; }
-  .notes { max-width: 340px; }
-  .notes h1 { font: 800 34px/1.05 'Barlow Semi Condensed'; }
-  .notes p { font-size: 16px; line-height: 1.5; color: var(--muted); margin-top: 12px; }
-  .notes nav { display: grid; gap: 8px; margin-top: 22px; }
-  .notes nav button { text-align: left; padding: 12px 14px; border-radius: 10px; background: #fff; border: 1px solid var(--line); font-weight: 600; font-size: 15px; }
-  .notes nav button span { display: block; font-weight: 400; font-size: 13.5px; color: var(--muted); }
-  .notes nav button.on { border-color: var(--blue); box-shadow: inset 3px 0 0 var(--blue); }
-  .notes .by { margin-top: 22px; font-size: 14px; color: var(--muted); }
-  .notes .by a { color: var(--blue-deep); }
+  /* ---------- desktop stage ---------- */
+  .stage { min-height: 100%; display: grid; grid-template-columns: 300px 390px; justify-content: center; align-items: center; gap: 96px; padding: 40px 24px; }
+  .side { display: flex; flex-direction: column; gap: 40px; }
+  .tag { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; color: var(--ink-2); }
+  .tag::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--amber); }
+  .side h1 { font-size: 40px; line-height: 1.02; font-weight: 600; letter-spacing: -.035em; margin-top: 14px; }
+  .side h1 span { color: var(--ink-3); }
+  .toc { list-style: none; display: grid; }
+  .toc button { width: 100%; display: flex; align-items: baseline; gap: 14px; padding: 11px 0; border-top: 1px solid var(--hair); font-size: 16px; font-weight: 500; color: var(--ink-3); text-align: left; transition: color .2s; }
+  .toc li:last-child button { border-bottom: 1px solid var(--hair); }
+  .toc button small { font-size: 12px; width: 18px; }
+  .toc button:hover, .toc button.on { color: var(--ink); }
+  .by { font-size: 13px; line-height: 1.6; color: var(--ink-2); }
+  .by a { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--hair); }
 
-  .phone { width: 390px; height: 844px; background: #fff; border-radius: 44px; box-shadow: 0 0 0 10px #12161C, 0 30px 60px rgba(18,22,28,.25); overflow: hidden; position: relative; display: flex; flex-direction: column; flex: none; }
+  .phone { width: 390px; height: 844px; border-radius: 56px; background: var(--bg); position: relative; overflow: hidden; display: flex; flex-direction: column;
+    box-shadow: 0 0 0 11px #0E1014, 0 0 0 12.5px #3A3D44, 0 50px 90px -20px rgba(14,16,20,.35), 0 20px 40px -20px rgba(14,16,20,.25); }
+  .island { position: absolute; top: 11px; left: 50%; translate: -50% 0; width: 122px; height: 35px; border-radius: 20px; background: #000; z-index: 20; }
+  .strip { display: none; }
+
   @media (max-width: 860px) {
-    body { background: #fff; }
-    .stage { padding: 0; display: block; }
-    .notes { display: none; }
+    body { background: var(--bg); }
+    .stage { display: block; padding: 0; }
+    .side, .island, .statusbar { display: none !important; }
     .phone { width: 100%; height: 100dvh; border-radius: 0; box-shadow: none; }
+    .strip { display: block; flex: none; padding: calc(6px + env(safe-area-inset-top)) 16px 6px; text-align: center; font-size: 11.5px; font-weight: 500; color: var(--ink-2); background: var(--bg); }
   }
 
-  .screen { position: absolute; inset: 0; display: none; flex-direction: column; background: var(--paper); }
-  .screen.on { display: flex; }
-  .scroll { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
-  .statusbar { height: 46px; flex: none; display: flex; justify-content: space-between; align-items: flex-end; padding: 0 28px 6px; font-weight: 600; font-size: 15px; }
-  .tabbar { flex: none; display: flex; background: #fff; border-top: 1px solid var(--line); padding: 8px 0 calc(16px + env(safe-area-inset-bottom)); }
-  .tabbar button { flex: 1; font-size: 12.5px; font-weight: 600; color: var(--muted); display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 4px 0; }
-  .tabbar svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-  .tabbar button.on { color: var(--blue); }
-  .appbar { flex: none; display: flex; align-items: center; gap: 10px; padding: 4px 16px 12px; background: #fff; border-bottom: 1px solid var(--line); }
-  .appbar h2 { font: 700 20px 'Barlow Semi Condensed'; }
-  .back { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 10px; }
-  .back::before { content: ""; width: 10px; height: 10px; border-left: 2.5px solid var(--ink); border-bottom: 2.5px solid var(--ink); transform: rotate(45deg); margin-left: 4px; }
+  /* ---------- phone chrome ---------- */
+  .screens { position: relative; flex: 1; }
+  .screen { position: absolute; inset: 0; display: none; flex-direction: column; background: var(--bg); }
+  .screen.on { display: flex; animation: enter .35s var(--ease); }
+  @keyframes enter { from { opacity: 0; transform: translateY(6px); } }
+  .scroll { flex: 1; overflow-y: auto; scrollbar-width: none; }
+  .scroll::-webkit-scrollbar { display: none; }
+  .statusbar { height: 54px; flex: none; display: flex; justify-content: space-between; align-items: center; padding: 6px 34px 0 42px; font-size: 16px; font-weight: 600; }
+  .statusbar svg { height: 12px; fill: var(--ink); }
+  .statusbar .ic { display: flex; gap: 6px; align-items: center; }
 
-  /* home */
-  .h-head { background: var(--blue); color: #fff; padding-bottom: 26px; flex: none; }
-  .h-head .statusbar { color: #fff; }
-  .h-top { display: flex; justify-content: space-between; align-items: center; padding: 6px 20px 0; }
-  .h-top h1 { font: 700 27px 'Barlow Semi Condensed'; }
-  .h-bal { text-align: right; line-height: 1.15; }
-  .h-bal small { display: block; font-size: 12.5px; opacity: .85; }
-  .h-bal b { font: 700 19px 'Barlow Semi Condensed'; }
-  .h-body { padding: 0 16px 16px; display: flex; flex-direction: column; gap: 12px; }
-  .card { background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 16px; }
-  .next { margin-top: -14px; }
-  .k { font-size: 13.5px; color: var(--muted); }
-  .big { font: 800 27px/1.05 'Barlow Semi Condensed'; margin-top: 3px; }
-  .row { display: flex; gap: 8px; margin-top: 12px; }
-  .soft { flex: 1; text-align: center; font-weight: 600; font-size: 15px; padding: 11px; border-radius: 10px; background: var(--paper); color: var(--blue-deep); }
-  .slot { display: flex; align-items: center; gap: 12px; background: var(--tarmac); color: #fff; border-radius: 14px; padding: 13px 14px 13px 18px; position: relative; overflow: hidden; text-align: left; width: 100%; }
-  .slot::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: repeating-linear-gradient(to bottom, var(--amber) 0 10px, transparent 10px 17px); }
-  .slot div { flex: 1; }
-  .slot strong { display: block; font-size: 15.5px; }
-  .slot small { font-size: 13.5px; color: #C3CBD5; }
-  .slot em { font-style: normal; font-weight: 600; font-size: 14px; background: var(--amber); color: var(--ink); padding: 8px 11px; border-radius: 8px; white-space: nowrap; }
-  .grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-  .grid4 button { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 12px 2px 10px; font-size: 13px; font-weight: 600; line-height: 1.2; }
-  .grid4 svg { width: 24px; height: 24px; stroke: var(--blue); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; display: block; margin: 0 auto 6px; }
-  .prog .top { display: flex; justify-content: space-between; font-size: 14px; }
-  .prog .top b { font-weight: 600; }
-  .bars { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-top: 10px; }
-  .bars i { height: 6px; border-radius: 3px; background: var(--line); }
-  .bars i.done { background: var(--ok); }
-  .bars i.now { background: var(--blue); }
-  .bars-l { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; font-size: 11.5px; color: var(--muted); margin-top: 5px; }
-  .note { display: flex; gap: 10px; align-items: center; font-size: 14px; padding: 2px 4px; }
-  .note i { width: 8px; height: 8px; border-radius: 50%; background: var(--amber); flex: none; }
-  .ad { border-radius: 14px; padding: 14px; background: linear-gradient(120deg, #E4EEFC, #F3F7FD); border: 1px solid #D3E1F6; }
-  .ad small { display: block; font-size: 11.5px; color: var(--muted); }
-  .ad strong { display: block; font: 700 18px 'Barlow Semi Condensed'; margin-top: 2px; }
-  .toast { position: absolute; left: 16px; right: 16px; bottom: 96px; background: var(--ink); color: #fff; border-radius: 12px; padding: 12px 14px; font-size: 14.5px; opacity: 0; transform: translateY(8px); transition: .2s; pointer-events: none; z-index: 9; }
-  .toast.on { opacity: 1; transform: none; }
+  .navbar { flex: none; height: 48px; display: grid; grid-template-columns: 48px 1fr 48px; align-items: center; padding: 0 8px; }
+  .navbar h2 { text-align: center; font-size: 17px; font-weight: 600; }
+  .icon-btn { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; }
+  .icon-btn:active { background: var(--fill); }
 
-  /* booking */
-  .b-body { padding: 16px; display: flex; flex-direction: column; gap: 16px; }
-  .when { font: 800 30px/1 'Barlow Semi Condensed'; }
-  .b-body p { font-size: 15px; line-height: 1.45; }
-  .meter { margin-top: 14px; height: 8px; background: var(--paper); border-radius: 4px; overflow: hidden; }
-  .meter b { display: block; height: 100%; background: var(--blue); width: 0; transition: width .25s linear; }
-  .meter-cap { display: flex; justify-content: space-between; font-size: 12.5px; color: var(--muted); margin-top: 6px; }
-  h3 { font: 700 17px 'Barlow Semi Condensed'; }
-  .hint { font-size: 13.5px; color: var(--muted); margin-top: 2px; }
-  .tgrid { display: grid; grid-template-columns: 40px repeat(5, 1fr); gap: 6px; margin-top: 10px; font-size: 13px; }
-  .tgrid .h { color: var(--muted); text-align: center; font-weight: 600; }
-  .tgrid .d { color: var(--muted); font-weight: 600; align-self: center; }
-  .cell { height: 38px; border-radius: 8px; background: #fff; border: 1.5px solid var(--line); }
-  .cell.on { background: var(--blue); border-color: var(--blue); }
-  .primary { width: 100%; font-weight: 600; font-size: 17px; background: var(--blue); color: #fff; border-radius: 12px; padding: 15px; }
-  .primary:disabled { background: #A9C6EE; cursor: default; }
-  .ghost { width: 100%; font-weight: 600; font-size: 16px; background: #fff; color: var(--blue-deep); border: 1.5px solid var(--line); border-radius: 12px; padding: 13px; }
-  .joined { display: flex; gap: 12px; align-items: flex-start; background: #E7F5EE; border-radius: 14px; padding: 14px; }
-  .tick { width: 26px; height: 26px; border-radius: 50%; background: var(--ok); display: grid; place-items: center; flex: none; }
-  .tick::after { content: ""; width: 10px; height: 5px; border-left: 2.5px solid #fff; border-bottom: 2.5px solid #fff; transform: rotate(-45deg) translate(1px,-1px); }
-  .joined strong { display: block; font-size: 15.5px; color: #135C3A; }
-  .joined span { font-size: 14px; line-height: 1.4; color: #24533D; }
-  .lessons { display: grid; gap: 8px; margin-top: 10px; }
-  .lesson { display: flex; justify-content: space-between; align-items: center; background: var(--paper); border-radius: 10px; padding: 11px 12px; font-size: 15px; }
-  .lesson b { font-weight: 600; }
-  .lesson span { color: var(--muted); font-size: 13.5px; }
-  .demo-note { font-size: 12.5px; color: var(--muted); text-align: center; }
+  .tabbar { flex: none; display: grid; grid-template-columns: repeat(4, 1fr); padding: 8px 12px calc(22px + env(safe-area-inset-bottom)); background: rgba(242,243,245,.86); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-top: 1px solid var(--hair); }
+  .tabbar button { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 4px 0; font-size: 11px; font-weight: 500; color: var(--ink-3); transition: color .2s; }
+  .tabbar svg.i { width: 24px; height: 24px; }
+  .tabbar button.on { color: var(--ink); }
 
-  /* candice */
-  .c-head { display: flex; align-items: center; gap: 12px; }
-  .avatar { width: 38px; height: 38px; border-radius: 50%; background: var(--blue); color: #fff; display: grid; place-items: center; font: 700 18px 'Barlow Semi Condensed'; flex: none; }
-  .c-head strong { display: block; font-size: 17px; }
-  .c-head small { font-size: 13px; color: var(--ok); }
-  .thread { padding: 16px 14px; display: flex; flex-direction: column; gap: 10px; }
-  .msg { max-width: 86%; font-size: 15px; line-height: 1.42; padding: 11px 14px; border-radius: 16px; white-space: pre-line; }
-  .bot { background: #fff; border: 1px solid var(--line); border-bottom-left-radius: 4px; align-self: flex-start; }
-  .me { background: var(--blue); color: #fff; border-bottom-right-radius: 4px; align-self: flex-end; }
-  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
-  .chip { font-size: 14px; font-weight: 500; padding: 8px 12px; border-radius: 999px; background: #fff; border: 1.5px solid #BFD6F6; color: var(--blue-deep); }
-  .dates { background: #fff; border: 1px solid var(--line); border-radius: 16px; border-bottom-left-radius: 4px; align-self: flex-start; width: 86%; overflow: hidden; }
-  .dates div { display: flex; justify-content: space-between; padding: 9px 14px; font-size: 14.5px; border-top: 1px solid var(--line); }
-  .dates div:first-child { border-top: 0; }
-  .dates b { font-weight: 600; white-space: nowrap; padding-left: 10px; }
-  .dates .cap { font-size: 12.5px; color: var(--muted); }
-  .composer { flex: none; display: flex; gap: 10px; align-items: center; padding: 10px 14px calc(14px + env(safe-area-inset-bottom)); border-top: 1px solid var(--line); background: #fff; }
-  .composer input { flex: 1; border: 1.5px solid var(--line); border-radius: 999px; padding: 11px 16px; font: 15px Barlow; color: var(--ink); min-width: 0; }
-  .send { width: 42px; height: 42px; border-radius: 50%; background: var(--blue); display: grid; place-items: center; flex: none; }
-  .send::after { content: ""; border-left: 12px solid #fff; border-top: 7px solid transparent; border-bottom: 7px solid transparent; margin-left: 3px; }
+  .toast { position: absolute; left: 50%; bottom: 104px; translate: -50% 8px; max-width: calc(100% - 40px); width: max-content; background: var(--ink); color: #fff; border-radius: 14px; padding: 11px 16px; font-size: 14px; font-weight: 500; opacity: 0; transition: opacity .2s, translate .25s var(--ease); pointer-events: none; z-index: 30; text-align: center; }
+  .toast.on { opacity: 1; translate: -50% 0; }
 
-  /* simulator */
-  .s-body { padding: 16px; display: flex; flex-direction: column; gap: 14px; }
-  .s-body > p { font-size: 15px; line-height: 1.45; }
-  .ctl { display: grid; gap: 4px; }
-  .ctl label { display: flex; justify-content: space-between; font-size: 14.5px; }
+  .pad { padding: 0 16px; }
+  .eyebrow { font-size: 13px; font-weight: 500; color: var(--ink-2); }
+  .group { background: var(--card); border-radius: var(--r); overflow: hidden; }
+  .section-h { font-size: 13px; font-weight: 500; color: var(--ink-2); padding: 0 4px 8px; }
+
+  /* ---------- home ---------- */
+  .h-top { display: flex; justify-content: space-between; align-items: center; padding: 12px 20px 20px; }
+  .h-top h1 { font-size: 30px; font-weight: 600; letter-spacing: -.03em; line-height: 1.1; }
+  .h-top p { font-size: 14px; color: var(--ink-2); margin-top: 2px; }
+  .me-av { width: 40px; height: 40px; border-radius: 50%; background: var(--card); display: grid; place-items: center; font-size: 14px; font-weight: 600; box-shadow: inset 0 0 0 1px var(--hair); }
+
+  .lesson-card { background: var(--ink); color: #fff; border-radius: 24px; padding: 20px 20px 16px; }
+  .lesson-card .eyebrow { color: rgba(255,255,255,.6); }
+  .lc-date { font-size: 17px; font-weight: 500; margin-top: 14px; }
+  .lc-time { font-size: 56px; font-weight: 600; letter-spacing: -.045em; line-height: 1; margin-top: 2px; }
+  .lc-time small { font-size: 22px; font-weight: 500; letter-spacing: -.02em; margin-left: 4px; color: rgba(255,255,255,.7); }
+  .lc-where { display: flex; align-items: center; gap: 6px; margin-top: 14px; font-size: 14px; color: rgba(255,255,255,.75); }
+  .lc-where svg.i { width: 16px; height: 16px; }
+  .lc-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 18px; position: relative; z-index: 1; }
+  .lc-actions button { padding: 12px; border-radius: 14px; background: rgba(255,255,255,.1); font-size: 14px; font-weight: 500; }
+  .lc-actions button:active { background: rgba(255,255,255,.16); }
+
+  .release { width: 100%; display: flex; align-items: center; gap: 14px; text-align: left; background: var(--card); border-radius: var(--r); padding: 16px; margin-top: 10px; }
+  .pulse { width: 10px; height: 10px; border-radius: 50%; background: var(--amber); flex: none; margin: 0 4px; box-shadow: 0 0 0 0 rgba(245,180,0,.5); animation: pulse 2s infinite; }
+  @keyframes pulse { 70% { box-shadow: 0 0 0 9px rgba(245,180,0,0); } 100% { box-shadow: 0 0 0 0 rgba(245,180,0,0); } }
+  .release div { flex: 1; }
+  .release strong { display: block; font-size: 15px; font-weight: 600; }
+  .release span { font-size: 13.5px; color: var(--ink-2); }
+  .release .cta-sm { font-size: 13.5px; font-weight: 600; color: #fff; background: var(--accent); padding: 8px 14px; border-radius: 999px; }
+
+  .rows button, .row { width: 100%; display: flex; align-items: center; gap: 14px; padding: 13px 16px; text-align: left; font-size: 15.5px; font-weight: 500; position: relative; }
+  .rows button:active { background: #F7F7F8; }
+  .rows button + button::before { content: ""; position: absolute; top: 0; left: 58px; right: 0; height: 1px; background: var(--hair); }
+  .ico { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; background: var(--fill); color: var(--ink); flex: none; }
+  .ico svg.i { width: 17px; height: 17px; }
+  .rows .lbl { flex: 1; }
+  .rows .val { font-size: 14.5px; font-weight: 400; color: var(--ink-2); }
+  .chev { width: 7px; height: 7px; border-right: 1.75px solid var(--ink-3); border-top: 1.75px solid var(--ink-3); rotate: 45deg; margin-right: 2px; flex: none; }
+
+  .prog { padding: 16px; }
+  .prog-top { display: flex; justify-content: space-between; align-items: baseline; }
+  .prog-top strong { font-size: 15.5px; font-weight: 600; }
+  .prog-top span { font-size: 13.5px; color: var(--ink-2); }
+  .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-top: 14px; }
+  .steps i { height: 4px; border-radius: 2px; background: var(--fill); }
+  .steps i.done { background: var(--ink); }
+  .steps i.now { background: linear-gradient(90deg, var(--accent) 50%, var(--fill) 50%); }
+  .steps-l { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-top: 8px; font-size: 11.5px; color: var(--ink-3); }
+  .steps-l .cur { color: var(--ink); font-weight: 500; }
+
+  .notice { display: flex; gap: 10px; align-items: center; padding: 18px 20px 4px; font-size: 13px; color: var(--ink-2); }
+  .notice svg.i { width: 16px; height: 16px; }
+  .ad { display: flex; align-items: center; gap: 12px; margin: 10px 16px 24px; padding: 14px 16px; border-radius: var(--r); border: 1px dashed rgba(11,13,18,.14); font-size: 14px; color: var(--ink-2); }
+  .ad b { font-size: 10.5px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--ink-3); }
+
+  /* ---------- booking ---------- */
+  .b-hero { padding: 8px 20px 24px; }
+  .b-hero h1 { font-size: 34px; font-weight: 600; letter-spacing: -.035em; line-height: 1.05; margin-top: 6px; }
+  .b-hero p { font-size: 15px; line-height: 1.45; color: var(--ink-2); margin-top: 10px; }
+  .timeline { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 22px; position: relative; }
+  .timeline::before { content: ""; position: absolute; top: 4px; left: 5px; right: 33%; height: 1px; background: var(--ink-3); }
+  .timeline div { position: relative; font-size: 13px; color: var(--ink-2); padding-top: 18px; }
+  .timeline div::before { content: ""; position: absolute; top: 0; left: 0; width: 9px; height: 9px; border-radius: 50%; background: var(--bg); box-shadow: inset 0 0 0 1.5px var(--ink-3); }
+  .timeline div:first-child::before { background: var(--ink); box-shadow: none; }
+  .timeline b { display: block; font-size: 14px; font-weight: 600; color: var(--ink); }
+
+  .picker { padding: 16px 12px 14px; }
+  .picker-h { display: flex; justify-content: space-between; align-items: baseline; padding: 0 6px 12px; }
+  .picker-h strong { font-size: 15.5px; font-weight: 600; }
+  .picker-h span { font-size: 13px; color: var(--ink-2); }
+  .tgrid { display: grid; grid-template-columns: 64px repeat(5, 1fr); gap: 6px; align-items: center; }
+  .tgrid .h { text-align: center; font-size: 12px; font-weight: 500; color: var(--ink-2); padding-bottom: 2px; }
+  .tgrid .d { font-size: 13px; font-weight: 500; padding-left: 6px; line-height: 1.2; }
+  .tgrid .d small { display: block; font-size: 11.5px; font-weight: 400; color: var(--ink-3); }
+  .cell { height: 44px; border-radius: 12px; background: var(--bg); display: grid; place-items: center; color: transparent; transition: background-color .15s, color .15s, transform .15s var(--ease); }
+  .cell:active { transform: scale(.92); }
+  .cell svg.i { width: 18px; height: 18px; stroke-width: 2.25; }
+  .cell.on { background: var(--accent); color: #fff; }
+
+  .dock { flex: none; padding: 12px 16px calc(28px + env(safe-area-inset-bottom)); background: linear-gradient(to top, var(--bg) 70%, rgba(242,243,245,0)); }
+  .dock-meta { display: flex; justify-content: space-between; font-size: 13px; color: var(--ink-2); padding: 0 4px 10px; }
+  .primary { width: 100%; height: 54px; border-radius: 16px; background: var(--ink); color: #fff; font-size: 16px; font-weight: 600; transition: opacity .2s, transform .15s var(--ease); }
+  .primary:active { transform: scale(.98); }
+  .primary:disabled { opacity: .3; cursor: default; transform: none; }
+  .secondary { width: 100%; height: 54px; border-radius: 16px; background: var(--card); font-size: 16px; font-weight: 600; box-shadow: inset 0 0 0 1px var(--hair); }
+
+  .wait { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 40px 24px 0; }
+  .ring { width: 220px; height: 220px; position: relative; }
+  .ring svg { width: 100%; height: 100%; rotate: -90deg; }
+  .ring circle { fill: none; stroke-width: 6; }
+  .ring .bg { stroke: var(--fill); }
+  .ring .fg { stroke: var(--accent); stroke-linecap: round; transition: stroke-dashoffset 1s linear; }
+  .ring-c { position: absolute; inset: 0; display: grid; place-content: center; }
+  .ring-c b { font-size: 52px; font-weight: 600; letter-spacing: -.04em; line-height: 1; }
+  .ring-c span { font-size: 13px; color: var(--ink-2); margin-top: 6px; }
+  .wait h1 { font-size: 26px; font-weight: 600; letter-spacing: -.03em; margin-top: 32px; }
+  .wait p { font-size: 15px; line-height: 1.45; color: var(--ink-2); margin-top: 8px; max-width: 290px; }
+
+  .done-hero { padding: 24px 20px 20px; }
+  .badge { width: 52px; height: 52px; border-radius: 50%; background: var(--good); color: #fff; display: grid; place-items: center; animation: pop .45s var(--ease); }
+  .badge svg.i { width: 26px; height: 26px; stroke-width: 2.5; }
+  @keyframes pop { from { transform: scale(.6); opacity: 0; } }
+  .done-hero h1 { font-size: 30px; font-weight: 600; letter-spacing: -.03em; margin-top: 18px; }
+  .done-hero p { font-size: 15px; color: var(--ink-2); margin-top: 6px; }
+  .booked { display: flex; align-items: center; gap: 14px; padding: 14px 16px; position: relative; }
+  .booked + .booked::before { content: ""; position: absolute; top: 0; left: 72px; right: 0; height: 1px; background: var(--hair); }
+  .datechip { width: 42px; height: 46px; border-radius: 12px; background: var(--bg); display: grid; place-content: center; text-align: center; line-height: 1.1; }
+  .datechip small { font-size: 10.5px; font-weight: 600; color: var(--bad); text-transform: uppercase; letter-spacing: .04em; }
+  .datechip b { font-size: 15px; font-weight: 600; }
+  .booked strong { display: block; font-size: 15.5px; font-weight: 600; }
+  .booked span { font-size: 13.5px; color: var(--ink-2); }
+  .demo-note { font-size: 12px; color: var(--ink-3); text-align: center; padding-top: 10px; }
+
+  /* ---------- fairness ---------- */
+  .seg { display: grid; grid-template-columns: 1fr 1fr; background: var(--fill); border-radius: 12px; padding: 3px; position: relative; }
+  .seg::before { content: ""; position: absolute; top: 3px; bottom: 3px; left: 3px; width: calc(50% - 3px); border-radius: 9px; background: var(--card); box-shadow: 0 1px 3px rgba(11,13,18,.1); transition: translate .3s var(--ease); }
+  .seg.draw::before { translate: 100% 0; }
+  .seg button { position: relative; padding: 8px 4px; font-size: 14px; font-weight: 500; color: var(--ink-2); transition: color .2s; }
+  .seg button.on { color: var(--ink); }
+
+  .verdict { padding: 26px 20px 8px; }
+  .big-stats { display: grid; grid-template-columns: 1fr auto 1fr; align-items: end; gap: 12px; }
+  .big-stats b { display: block; font-size: 52px; font-weight: 600; letter-spacing: -.045em; line-height: 1; }
+  .big-stats span { display: block; font-size: 13.5px; color: var(--ink-2); margin-top: 6px; line-height: 1.3; }
+  .big-stats .arrow { color: var(--ink-3); align-self: center; margin-bottom: 18px; }
+  .big-stats .out b { color: var(--bad); transition: color .3s; }
+  .big-stats .out.fair b { color: var(--ink); }
+
+  .dots { display: grid; grid-template-columns: repeat(20, 1fr); gap: 4px; padding: 16px; }
+  .dots i { aspect-ratio: 1; border-radius: 3px; background: var(--fill); transition: background-color .35s; }
+  .dots i.bot { background: var(--bad); }
+  .legend { display: flex; gap: 16px; padding: 0 16px 16px; font-size: 12.5px; color: var(--ink-2); }
+  .legend span { display: flex; align-items: center; gap: 6px; }
+  .legend i { width: 9px; height: 9px; border-radius: 2px; background: var(--fill); }
+  .legend i.bot { background: var(--bad); }
+  .others { display: flex; justify-content: space-between; padding: 13px 16px; border-top: 1px solid var(--hair); font-size: 14.5px; font-weight: 500; }
+  .others b { font-weight: 600; }
+
+  .ctl { padding: 14px 16px; position: relative; }
+  .ctl + .ctl::before { content: ""; position: absolute; top: 0; left: 16px; right: 0; height: 1px; background: var(--hair); }
+  .ctl label { display: flex; justify-content: space-between; font-size: 14.5px; font-weight: 500; }
   .ctl label b { font-weight: 600; }
-  .ctl input { width: 100%; accent-color: var(--blue); }
-  .switch { display: grid; grid-template-columns: 1fr 1fr; background: #E6EBF1; border-radius: 12px; padding: 4px; }
-  .switch button { padding: 10px 6px; border-radius: 9px; font-weight: 600; font-size: 14.5px; color: var(--muted); }
-  .switch button.on { background: #fff; color: var(--ink); box-shadow: 0 1px 2px rgba(19,35,58,.12); }
-  .result .line { margin-top: 12px; }
-  .result .lbl { display: flex; justify-content: space-between; font-size: 14px; }
-  .result .lbl b { font-weight: 700; }
-  .track { height: 14px; border-radius: 7px; background: var(--paper); overflow: hidden; margin-top: 5px; }
-  .track b { display: block; height: 100%; width: 0; border-radius: 7px; transition: width .5s ease; }
-  .track.bots b { background: var(--bad); }
-  .track.ppl b { background: var(--ok); }
-  .verdict { font: 700 21px/1.2 'Barlow Semi Condensed'; }
-  .verdict.bad { color: var(--bad); }
-  .verdict.good { color: var(--ok); }
-  .small { font-size: 13px; color: var(--muted); line-height: 1.45; }
-  .strip { display: none; }
-  @media (max-width: 860px) { .strip { display: block; flex: none; background: var(--amber); color: var(--ink); font-size: 12.5px; font-weight: 600; text-align: center; padding: 6px 10px; position: relative; z-index: 5; } .screen { top: 29px; } }
-  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+  input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 28px; background: transparent; margin-top: 4px; --p: 50%; }
+  input[type=range]::-webkit-slider-runnable-track { height: 4px; border-radius: 2px; background: linear-gradient(90deg, var(--ink) var(--p), var(--fill) var(--p)); }
+  input[type=range]::-moz-range-track { height: 4px; border-radius: 2px; background: linear-gradient(90deg, var(--ink) var(--p), var(--fill) var(--p)); }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; border-radius: 50%; background: #fff; margin-top: -10px; box-shadow: 0 0 0 .5px rgba(11,13,18,.1), 0 2px 6px rgba(11,13,18,.18); }
+  input[type=range]::-moz-range-thumb { width: 24px; height: 24px; border: 0; border-radius: 50%; background: #fff; box-shadow: 0 0 0 .5px rgba(11,13,18,.1), 0 2px 6px rgba(11,13,18,.18); }
+
+  details { padding: 14px 20px 28px; font-size: 13px; line-height: 1.5; color: var(--ink-2); }
+  summary { cursor: pointer; font-weight: 500; color: var(--ink); list-style: none; display: flex; align-items: center; gap: 8px; }
+  summary::-webkit-details-marker { display: none; }
+  summary::after { content: ""; width: 6px; height: 6px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; rotate: 45deg; translate: 0 -2px; transition: rotate .2s; }
+  details[open] summary::after { rotate: 225deg; translate: 0 2px; }
+  details p { margin-top: 8px; }
+
+  /* ---------- candice ---------- */
+  .c-nav { display: flex; align-items: center; gap: 10px; }
+  .c-av { width: 32px; height: 32px; border-radius: 50%; background: var(--accent); color: #fff; display: grid; place-items: center; font-size: 14px; font-weight: 600; }
+  .c-nav strong { display: block; font-size: 15.5px; font-weight: 600; line-height: 1.2; }
+  .c-nav small { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--ink-2); }
+  .c-nav small::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: #22B573; }
+  .thread { padding: 12px 16px 16px; display: flex; flex-direction: column; gap: 6px; }
+  .day { align-self: center; font-size: 12px; color: var(--ink-3); margin: 4px 0 8px; }
+  .msg { max-width: 80%; font-size: 15.5px; line-height: 1.4; padding: 10px 14px; border-radius: 20px; animation: enter .25s var(--ease); }
+  .bot { background: var(--card); align-self: flex-start; border-bottom-left-radius: 6px; }
+  .me { background: var(--accent); color: #fff; align-self: flex-end; border-bottom-right-radius: 6px; margin-top: 8px; }
+  .typing { display: flex; gap: 4px; padding: 14px 16px; }
+  .typing i { width: 7px; height: 7px; border-radius: 50%; background: var(--ink-3); animation: blink 1.1s infinite; }
+  .typing i:nth-child(2) { animation-delay: .15s; } .typing i:nth-child(3) { animation-delay: .3s; }
+  @keyframes blink { 0%, 60%, 100% { opacity: .3; transform: none; } 30% { opacity: 1; transform: translateY(-2px); } }
+  .dates { background: var(--card); border-radius: 20px; border-bottom-left-radius: 6px; align-self: flex-start; width: 86%; overflow: hidden; animation: enter .25s var(--ease); }
+  .dates div { display: flex; justify-content: space-between; gap: 10px; padding: 11px 14px; font-size: 14.5px; position: relative; }
+  .dates div + div::before { content: ""; position: absolute; top: 0; left: 14px; right: 0; height: 1px; background: var(--hair); }
+  .dates b { font-weight: 600; white-space: nowrap; }
+  .dates .cap { font-size: 12px; color: var(--ink-3); background: #FAFAFB; }
+  .chips { flex: none; display: flex; gap: 8px; overflow-x: auto; padding: 4px 16px 10px; scrollbar-width: none; }
+  .chips::-webkit-scrollbar { display: none; }
+  .chip { flex: none; font-size: 14px; font-weight: 500; padding: 9px 14px; border-radius: 999px; background: var(--card); box-shadow: inset 0 0 0 1px var(--hair); white-space: nowrap; }
+  .composer { flex: none; display: flex; gap: 8px; align-items: center; padding: 0 16px calc(28px + env(safe-area-inset-bottom)); }
+  .composer input { flex: 1; min-width: 0; height: 44px; border: 0; border-radius: 22px; padding: 0 18px; font: 15.5px Geist, system-ui, sans-serif; color: var(--ink); background: var(--card); box-shadow: inset 0 0 0 1px var(--hair); letter-spacing: -.01em; }
+  .composer input::placeholder { color: var(--ink-3); }
+  .send { width: 44px; height: 44px; border-radius: 50%; background: var(--ink); color: #fff; display: grid; place-items: center; flex: none; transition: transform .15s var(--ease); }
+  .send:active { transform: scale(.92); }
+
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M4 10.5 12 4l8 6.5V19a1 1 0 0 1-1 1h-4.5v-5.5h-5V20H5a1 1 0 0 1-1-1z"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></symbol>
+  <symbol id="i-scale" viewBox="0 0 24 24"><path d="M12 4v16M7 20h10M5 8h14M5 8l-3 6a3 3 0 0 0 6 0zM19 8l-3 6a3 3 0 0 0 6 0z"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M20 11.5a7.5 7.5 0 0 1-10.9 6.7L4.5 19.5l1.3-4.2A7.5 7.5 0 1 1 20 11.5z"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01"/></symbol>
+  <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></symbol>
+  <symbol id="i-card" viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2.5"/><path d="M3 10h18M7 14.5h3"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5 10 17.5 19 7.5"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></symbol>
+  <symbol id="i-up" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></symbol>
+  <symbol id="i-tool" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 8v4.5M12 15.8h.01"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+</svg>
+
 <div class="stage">
-  <aside class="notes">
-    <h1>CDC app, reworked</h1>
-    <p>A working concept by a CDC learner. Tap through it on the phone, or open this link on your own phone. Unofficial, and not connected to CDC's systems.</p>
-    <nav id="jump">
-      <button data-go="home" class="on">App home<span>Next lesson first, ads lower down</span></button>
-      <button data-go="book">Booking with a random draw<span>No reason to refresh or use a bot</span></button>
-      <button data-go="sim">Race vs draw<span>What share of slots bots get under each</span></button>
-      <button data-go="candice">Ask Candice<span>Suggested questions and real answers</span></button>
-    </nav>
-    <p class="by">King Shelton, Singapore Polytechnic<br><a href="https://kingshelton.com">kingshelton.com</a> &nbsp; 8921 9715</p>
+  <aside class="side">
+    <div>
+      <span class="tag">Unofficial concept</span>
+      <h1>The CDC app, <span>rethought.</span></h1>
+    </div>
+    <ol class="toc" id="jump">
+      <li><button data-go="home" class="on"><small class="num">01</small>Home</button></li>
+      <li><button data-go="book"><small class="num">02</small>Booking by draw</button></li>
+      <li><button data-go="sim"><small class="num">03</small>Race vs draw</button></li>
+      <li><button data-go="candice"><small class="num">04</small>Candice</button></li>
+    </ol>
+    <p class="by">By King Shelton, a CDC learner. Not affiliated with ComfortDelGro.<br><a href="https://kingshelton.com">kingshelton.com</a> · <span class="num">8921 9715</span></p>
   </aside>
 
   <main class="phone" aria-label="App concept">
-    <div class="strip">Unofficial concept by King Shelton. Not the real CDC app.</div>
+    <div class="island"></div>
+    <div class="strip">Unofficial concept by King Shelton · Not the CDC app</div>
+    <div class="screens">
 
     <!-- HOME -->
     <section class="screen on" id="home">
       <div class="scroll">
-        <div class="h-head">
-          <div class="statusbar"><span>9:41</span><span>5G</span></div>
-          <div class="h-top">
-            <h1>Hi, Wei Ling</h1>
-            <div class="h-bal"><small>Balance</small><b>S$120.00</b></div>
-          </div>
+        <div class="statusbar"><span class="num">9:41</span><span class="ic"><svg viewBox="0 0 18 12"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg><svg viewBox="0 0 27 12"><rect x=".5" y=".5" width="23" height="11" rx="3.5" fill="none" stroke="currentColor" stroke-opacity=".4"/><rect x="2" y="2" width="17" height="8" rx="2"/><rect x="25" y="4" width="1.5" height="4" rx=".75" opacity=".4"/></svg></span></div>
+        <div class="h-top">
+          <div><h1>Hi, Wei Ling</h1><p>Class 3A · <span class="num">S$120.00</span> balance</p></div>
+          <button class="me-av press" data-toast="Profile and settings">WL</button>
         </div>
-        <div class="h-body">
-          <div class="card next">
-            <div class="k">Next lesson</div>
-            <div class="big">Tue 28 Oct, 7:30 pm</div>
-            <div style="font-size:15px;margin-top:4px">Practical lesson, pick-up at Kovan MRT Exit A</div>
-            <div class="row"><button class="soft" data-toast="Opens Google Maps to Kovan MRT Exit A">Directions</button><button class="soft" data-toast="Shows other times you could move this lesson to">Reschedule</button></div>
+
+        <div class="pad">
+          <div class="lesson-card">
+            <div class="eyebrow">Next lesson</div>
+            <div class="lc-date">Tuesday, 28 October</div>
+            <div class="lc-time num">7:30<small>pm</small></div>
+            <div class="lc-where"><svg class="i"><use href="#i-pin"/></svg>Kovan MRT, Exit A</div>
+            <div class="lc-actions">
+              <button data-toast="Opens Google Maps to Kovan MRT Exit A">Directions</button>
+              <button data-toast="Shows other times you could move to">Reschedule</button>
+            </div>
           </div>
-          <button class="slot" data-go="book">
-            <div><strong>Lesson slots open Fri, 8 pm</strong><small>Tap to pick your times now</small></div>
-            <em>Pick times</em>
+
+          <button class="release press" data-go="book">
+            <span class="pulse"></span>
+            <div><strong>New slots open Fri, 8:00 pm</strong><span>Pick your times now</span></div>
+            <span class="cta-sm">Pick</span>
           </button>
-          <div class="grid4">
-            <button data-go="book"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Book lesson</button>
-            <button data-toast="Your upcoming and past lessons"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg>My bookings</button>
-            <button data-go="candice" data-ask="Test dates"><svg viewBox="0 0 24 24"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9"/></svg>Test dates</button>
-            <button data-toast="Top up with PayNow or card"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M16 15h2"/></svg>Top up</button>
+
+          <div class="group rows" style="margin-top:10px">
+            <button data-go="book"><span class="ico"><svg class="i"><use href="#i-cal"/></svg></span><span class="lbl">Book lessons</span><span class="chev"></span></button>
+            <button data-toast="Your upcoming and past lessons"><span class="ico"><svg class="i"><use href="#i-list"/></svg></span><span class="lbl">My bookings</span><span class="val">3 upcoming</span><span class="chev"></span></button>
+            <button data-go="candice" data-ask="Test dates"><span class="ico"><svg class="i"><use href="#i-flag"/></svg></span><span class="lbl">Test dates</span><span class="val">From 4 Nov</span><span class="chev"></span></button>
+            <button data-toast="Top up with PayNow or card"><span class="ico"><svg class="i"><use href="#i-card"/></svg></span><span class="lbl">Top up</span><span class="val num">S$120.00</span><span class="chev"></span></button>
           </div>
-          <div class="card prog">
-            <div class="top"><b>Class 3A licence</b><span class="k">Practical lessons</span></div>
-            <div class="bars"><i class="done"></i><i class="done"></i><i class="now"></i><i></i></div>
-            <div class="bars-l"><span>Basic theory</span><span>Final theory</span><span>Lessons</span><span>TP test</span></div>
+
+          <div class="group prog" style="margin-top:10px">
+            <div class="prog-top"><strong>Your licence</strong><span>Step 3 of 4</span></div>
+            <div class="steps"><i class="done"></i><i class="done"></i><i class="now"></i><i></i></div>
+            <div class="steps-l"><span>Basic theory</span><span>Final theory</span><span class="cur">Lessons</span><span>TP test</span></div>
           </div>
-          <div class="note"><i></i><span>Booking portal maintenance, Sun 11 pm to 1 am</span></div>
-          <div class="ad"><small>Sponsored</small><strong>Passed your test? Insure your first car</strong></div>
         </div>
+
+        <div class="notice"><svg class="i"><use href="#i-tool"/></svg>Portal maintenance Sun, 11 pm to 1 am</div>
+        <div class="ad"><b>Ad</b>Passed your test? Insure your first car</div>
       </div>
       <nav class="tabbar">
-        <button class="on" data-go="home"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Home</button>
-        <button data-go="book"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Book</button>
-        <button data-go="sim"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Fairness</button>
-        <button data-go="candice"><svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>Candice</button>
+        <button class="on" data-go="home"><svg class="i"><use href="#i-home"/></svg>Home</button>
+        <button data-go="book"><svg class="i"><use href="#i-cal"/></svg>Book</button>
+        <button data-go="sim"><svg class="i"><use href="#i-scale"/></svg>Fairness</button>
+        <button data-go="candice"><svg class="i"><use href="#i-chat"/></svg>Candice</button>
       </nav>
     </section>
 
     <!-- BOOK -->
     <section class="screen" id="book">
-      <div class="statusbar" style="background:#fff"><span>9:41</span><span>5G</span></div>
-      <div class="appbar"><button class="back" data-go="home" aria-label="Back"></button><h2>Book practical lessons</h2></div>
-      <div class="scroll">
-        <div class="b-body" id="bookBody"></div>
-      </div>
+      <div class="statusbar"><span class="num">9:41</span><span></span></div>
+      <div class="navbar"><button class="icon-btn" data-go="home" aria-label="Back"><svg class="i"><use href="#i-back"/></svg></button><h2>Book lessons</h2><span></span></div>
+      <div class="scroll" id="bookBody"></div>
+      <div class="dock" id="bookDock"></div>
     </section>
 
     <!-- SIM -->
     <section class="screen" id="sim">
-      <div class="statusbar" style="background:#fff"><span>9:41</span><span>5G</span></div>
-      <div class="appbar"><button class="back" data-go="home" aria-label="Back"></button><h2>Race vs draw</h2></div>
+      <div class="statusbar"><span class="num">9:41</span><span></span></div>
+      <div class="navbar"><button class="icon-btn" data-go="home" aria-label="Back"><svg class="i"><use href="#i-back"/></svg></button><h2>Race vs draw</h2><span></span></div>
       <div class="scroll">
-        <div class="s-body">
-          <p>Lesson slots open at a set time. Here's who ends up with them when it's a race, and when it's a random draw.</p>
-          <div class="card" style="display:grid;gap:14px">
-            <div class="ctl"><label for="sLearners">Learners trying to book <b id="vLearners"></b></label><input type="range" id="sLearners" min="200" max="4000" step="100" value="2000"></div>
-            <div class="ctl"><label for="sSlots">Slots released <b id="vSlots"></b></label><input type="range" id="sSlots" min="50" max="1500" step="50" value="600"></div>
-            <div class="ctl"><label for="sBots">Learners using a bot <b id="vBots"></b></label><input type="range" id="sBots" min="1" max="30" step="1" value="5"></div>
+        <div class="pad">
+          <div class="seg" id="seg" role="tablist">
+            <button class="on" data-mode="race" role="tab">First come, first served</button>
+            <button data-mode="draw" role="tab">Random draw</button>
           </div>
-          <div class="switch" role="tablist">
-            <button class="on" data-mode="race">First come, first served</button>
-            <button data-mode="draw">Random draw</button>
-          </div>
-          <div class="card result">
-            <div class="verdict" id="verdict"></div>
-            <div class="line">
-              <div class="lbl"><span>Bot users' share of learners</span><b id="rShareP"></b></div>
-              <div class="track ppl"><b id="tShareP"></b></div>
-            </div>
-            <div class="line">
-              <div class="lbl"><span>Bot users' share of slots</span><b id="rShareS"></b></div>
-              <div class="track bots"><b id="tShareS"></b></div>
-            </div>
-            <div class="line">
-              <div class="lbl"><span>Learners without a bot who got a slot</span><b id="rHuman"></b></div>
-            </div>
-          </div>
-          <p class="small" id="how"></p>
         </div>
+        <div class="verdict">
+          <div class="big-stats">
+            <div><b class="num" id="rShareP"></b><span>of learners<br>use a bot</span></div>
+            <svg class="i arrow"><use href="#i-arrow"/></svg>
+            <div class="out" id="outStat"><b class="num" id="rShareS"></b><span>of slots<br>go to them</span></div>
+          </div>
+        </div>
+        <div class="pad">
+          <div class="group" style="margin-top:14px">
+            <div class="dots" id="dots" aria-hidden="true"></div>
+            <div class="legend"><span><i class="bot"></i>Bot users</span><span><i></i>Everyone else</span></div>
+            <div class="others"><span>Learners without a bot who got a slot</span><b class="num" id="rHuman"></b></div>
+          </div>
+          <div class="section-h" style="margin-top:22px">Scenario</div>
+          <div class="group">
+            <div class="ctl"><label for="sLearners">Learners booking <b class="num" id="vLearners"></b></label><input type="range" id="sLearners" min="200" max="4000" step="100" value="2000"></div>
+            <div class="ctl"><label for="sSlots">Slots released <b class="num" id="vSlots"></b></label><input type="range" id="sSlots" min="50" max="1500" step="50" value="600"></div>
+            <div class="ctl"><label for="sBots">Learners with a bot <b class="num" id="vBots"></b></label><input type="range" id="sBots" min="1" max="30" step="1" value="5"></div>
+          </div>
+        </div>
+        <details><summary>How this is modelled</summary><p id="how"></p></details>
       </div>
     </section>
 
     <!-- CANDICE -->
     <section class="screen" id="candice">
-      <div class="statusbar" style="background:#fff"><span>9:41</span><span>5G</span></div>
-      <div class="appbar"><button class="back" data-go="home" aria-label="Back"></button>
-        <div class="c-head"><span class="avatar">C</span><div><strong>Candice</strong><small>CDC assistant</small></div></div>
+      <div class="statusbar"><span class="num">9:41</span><span></span></div>
+      <div class="navbar"><button class="icon-btn" data-go="home" aria-label="Back"><svg class="i"><use href="#i-back"/></svg></button>
+        <div class="c-nav" style="justify-self:center"><span class="c-av">C</span><div><strong>Candice</strong><small>CDC assistant</small></div></div><span></span>
       </div>
-      <div class="scroll" id="cScroll"><div class="thread" id="thread"></div></div>
-      <form class="composer" id="cForm"><input id="cInput" placeholder="Ask about lessons, tests, getting here" autocomplete="off" aria-label="Message Candice"><button class="send" aria-label="Send"></button></form>
+      <div class="scroll" id="cScroll"><div class="thread" id="thread"><div class="day">Today</div></div></div>
+      <div class="chips" id="chips"></div>
+      <form class="composer" id="cForm"><input id="cInput" placeholder="Ask anything" autocomplete="off" aria-label="Message Candice"><button class="send" aria-label="Send"><svg class="i"><use href="#i-up"/></svg></button></form>
     </section>
 
-    <div class="toast" id="toast"></div>
+    </div>
+    <div class="toast" id="toast" role="status"></div>
   </main>
 </div>
 
 <script>
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
+const icon = id => `<svg class="i"><use href="#i-${id}"/></svg>`;
 
 /* navigation */
 function go(id, ask) {
   $$('.screen').forEach(s => s.classList.toggle('on', s.id === id));
   $$('#jump button').forEach(b => b.classList.toggle('on', b.dataset.go === id));
   $$('.tabbar button').forEach(b => b.classList.toggle('on', b.dataset.go === id));
-  if (id === 'candice' && ask) setTimeout(() => askCandice(ask), 150);
+  if (id === 'candice' && ask) setTimeout(() => askCandice(ask), 250);
 }
 document.addEventListener('click', e => {
   const t = e.target.closest('[data-go],[data-toast]');
@@ -317,62 +454,88 @@ function toast(msg) {
 
 /* booking */
 const days = ['Mon','Tue','Wed','Thu','Fri'];
-const parts = [['AM','8:30 am'],['PM','2:00 pm'],['Eve','7:30 pm']];
+const dates = [2, 3, 4, 5, 6];
+const parts = [['Morning','8:30 am'],['Afternoon','2:00 pm'],['Evening','7:30 pm']];
+const WINDOW = 8;
 let picked = new Set(['0-2','1-2','3-0']);
 let state = 'pick', countdown = 0, timer;
 
 function renderBook() {
-  const b = $('#bookBody');
+  const b = $('#bookBody'), dock = $('#bookDock');
   if (state === 'pick') {
     b.innerHTML = `
-      <div class="card">
-        <div class="k">Next slot release</div>
-        <div class="when">Friday, 8:00 pm</div>
-        <p style="margin-top:10px">Pick the times that suit you any time before 8:10 pm. When the window closes, everyone who joined gets a random place in the queue. Joining at 8:00 or 8:09 makes no difference.</p>
-      </div>
-      <div>
-        <h3>Times that suit you</h3>
-        <div class="hint">Pick at least 2. More picks, better odds.</div>
-        <div class="tgrid">
-          <span></span>${days.map(d => `<span class="h">${d}</span>`).join('')}
-          ${parts.map((p,pi) => `<span class="d">${p[0]}</span>` + days.map((d,di) => `<button class="cell ${picked.has(di+'-'+pi)?'on':''}" data-cell="${di}-${pi}" aria-label="${d} ${p[0]}" aria-pressed="${picked.has(di+'-'+pi)}"></button>`).join('')).join('')}
+      <div class="b-hero">
+        <div class="eyebrow">Next release</div>
+        <h1>Friday, 8:00 pm</h1>
+        <p>Pick your times before 8:10 pm. Places are drawn at random, so there's no need to rush.</p>
+        <div class="timeline">
+          <div><b class="num">8:00</b>Opens</div>
+          <div><b class="num">8:10</b>Draw</div>
+          <div><b>SMS</b>Your lessons</div>
         </div>
       </div>
-      <button class="primary" id="join" ${picked.size < 2 ? 'disabled' : ''}>Join Friday's release</button>
-      <p class="demo-note">In this demo the 10-minute window runs in 8 seconds.</p>`;
+      <div class="pad">
+        <div class="group picker">
+          <div class="picker-h"><strong>Times that suit you</strong><span>Week of 2 Nov</span></div>
+          <div class="tgrid">
+            <span></span>${days.map(d => `<span class="h">${d}</span>`).join('')}
+            ${parts.map((p, pi) => `<span class="d">${p[0]}<small class="num">${p[1]}</small></span>` + days.map((d, di) => {
+              const k = di + '-' + pi, on = picked.has(k);
+              return `<button class="cell ${on ? 'on' : ''}" data-cell="${k}" aria-label="${d} ${p[0]}" aria-pressed="${on}">${icon('check')}</button>`;
+            }).join('')).join('')}
+          </div>
+        </div>
+        <p class="demo-note">Demo: the 10-minute window runs in ${WINDOW} seconds.</p>
+      </div>`;
+    const n = picked.size;
+    dock.innerHTML = `
+      <div class="dock-meta"><span>${n} time${n === 1 ? '' : 's'} picked</span><span>${n < 2 ? 'Pick at least 2' : 'More picks, better odds'}</span></div>
+      <button class="primary" id="join" ${n < 2 ? 'disabled' : ''}>Join the draw</button>`;
   } else if (state === 'waiting') {
-    const pct = Math.round((1 - countdown / 8) * 100);
     b.innerHTML = `
-      <div class="joined"><span class="tick"></span><div><strong>You're in Friday's release</strong><span>You picked ${picked.size} times. No need to stay on this screen or keep refreshing.</span></div></div>
-      <div class="card">
-        <div class="k">Window closes in</div>
-        <div class="when">0:0${countdown}</div>
-        <div class="meter"><b style="width:${pct}%"></b></div>
-        <div class="meter-cap"><span>8:00 pm</span><span>8:10 pm</span></div>
-      </div>
-      <button class="ghost" id="edit">Change my times</button>`;
+      <div class="wait">
+        <div class="ring">
+          <svg viewBox="0 0 100 100"><circle class="bg" cx="50" cy="50" r="46"/><circle class="fg" id="ringFg" cx="50" cy="50" r="46" stroke-dasharray="289" stroke-dashoffset="0"/></svg>
+          <div class="ring-c"><b class="num" id="cd">0:0${countdown}</b><span>until the draw</span></div>
+        </div>
+        <h1>You're in</h1>
+        <p>${picked.size} times picked. You can close the app. Results arrive by SMS.</p>
+      </div>`;
+    dock.innerHTML = `<button class="secondary" id="edit">Change times</button>`;
   } else {
-    const mine = [...picked].sort().map(k => { const [d,p] = k.split('-').map(Number); return { d, p }; });
+    const mine = [...picked].sort().map(k => { const [d, p] = k.split('-').map(Number); return { d, p }; });
     const got = mine.filter((_, i) => i % 3 !== 1).slice(0, 3);
     b.innerHTML = `
-      <div class="joined"><span class="tick"></span><div><strong>You got ${got.length} lesson${got.length>1?'s':''}</strong><span>Your queue number was 412 of 1,530. We matched you to the times you picked and sent them by SMS.</span></div></div>
-      <div class="card">
-        <h3>Your new lessons</h3>
-        <div class="lessons">${got.map(g => `<div class="lesson"><b>${days[g.d]}, ${parts[g.p][1]}</b><span>Practical, pick-up Kovan</span></div>`).join('')}</div>
+      <div class="done-hero">
+        <div class="badge">${icon('check')}</div>
+        <h1>You got ${got.length} lesson${got.length > 1 ? 's' : ''}</h1>
+        <p>Queue number <span class="num">412</span> of <span class="num">1,530</span> · Sent by SMS</p>
       </div>
-      <button class="ghost" id="again">Try the demo again</button>`;
+      <div class="pad"><div class="group">
+        ${got.map(g => `<div class="booked"><span class="datechip"><small>${days[g.d]}</small><b class="num">${dates[g.d]}</b></span><div><strong class="num">${parts[g.p][1]}</strong><span>Practical · Kovan pick-up</span></div></div>`).join('')}
+      </div></div>`;
+    dock.innerHTML = `<button class="secondary" id="again">Run the demo again</button>`;
   }
 }
-$('#bookBody').addEventListener('click', e => {
+function tick() {
+  const fg = $('#ringFg'), cd = $('#cd');
+  if (fg) fg.style.strokeDashoffset = 289 * (1 - countdown / WINDOW);
+  if (cd) cd.textContent = '0:0' + countdown;
+}
+$('#book').addEventListener('click', e => {
   const c = e.target.closest('[data-cell]');
   if (c) { const k = c.dataset.cell; picked.has(k) ? picked.delete(k) : picked.add(k); renderBook(); return; }
-  if (e.target.id === 'join') {
-    state = 'waiting'; countdown = 8; renderBook();
+  const id = e.target.closest('button')?.id;
+  if (id === 'join') {
+    state = 'waiting'; countdown = WINDOW; renderBook();
     clearInterval(timer);
-    timer = setInterval(() => { countdown--; if (countdown <= 0) { clearInterval(timer); state = 'done'; } renderBook(); }, 1000);
+    timer = setInterval(() => {
+      countdown--;
+      if (countdown <= 0) { clearInterval(timer); state = 'done'; renderBook(); } else tick();
+    }, 1000);
   }
-  if (e.target.id === 'edit') { clearInterval(timer); state = 'pick'; renderBook(); }
-  if (e.target.id === 'again') { state = 'pick'; renderBook(); }
+  if (id === 'edit') { clearInterval(timer); state = 'pick'; renderBook(); }
+  if (id === 'again') { state = 'pick'; renderBook(); }
 });
 renderBook();
 
@@ -408,7 +571,10 @@ function simulate(learners, slots, botPct, mode) {
   return { botUsers, shareP: botUsers / learners, shareS: botSlots / given, humanRate: humanGot.size / (learners - botUsers) };
 }
 
+$('#dots').innerHTML = '<i></i>'.repeat(100);
 function renderSim() {
+  const inputs = $$('#sim input[type=range]');
+  inputs.forEach(i => i.style.setProperty('--p', ((i.value - i.min) / (i.max - i.min) * 100) + '%'));
   const L = +$('#sLearners').value, S = +$('#sSlots').value, B = +$('#sBots').value;
   $('#vLearners').textContent = L.toLocaleString();
   $('#vSlots').textContent = S.toLocaleString();
@@ -417,24 +583,19 @@ function renderSim() {
   const pct = x => Math.round(x * 100) + '%';
   $('#rShareP').textContent = pct(res.shareP);
   $('#rShareS').textContent = pct(res.shareS);
-  $('#tShareP').style.width = pct(res.shareP);
-  $('#tShareS').style.width = pct(res.shareS);
   $('#rHuman').textContent = pct(res.humanRate);
-  const v = $('#verdict');
-  if (mode === 'race') {
-    v.className = 'verdict bad';
-    v.textContent = `${pct(res.shareP)} of learners use bots and take ${pct(res.shareS)} of slots.`;
-    $('#how').textContent = `How this is worked out: people react in 1.5 to 20 seconds and bots in under half a second. Without Singpass, each bot user runs ${ACCOUNTS_PER_BOT_USER} accounts.`;
-  } else {
-    v.className = 'verdict good';
-    v.textContent = `Bots get about their fair share: ${pct(res.shareS)} of slots.`;
-    $('#how').textContent = 'How this is worked out: one entry per Singpass login, and the queue order is random, so speed and extra accounts do nothing.';
-  }
+  $('#outStat').classList.toggle('fair', mode === 'draw');
+  const botDots = Math.round(res.shareS * 100);
+  $$('#dots i').forEach((d, i) => d.classList.toggle('bot', i < botDots));
+  $('#how').textContent = mode === 'race'
+    ? `Each square is 1% of the slots. People react in 1.5 to 20 seconds, bots in under half a second. Without Singpass, each bot user runs ${ACCOUNTS_PER_BOT_USER} accounts.`
+    : 'Each square is 1% of the slots. One entry per Singpass login, in random order, so speed and extra accounts make no difference.';
 }
 $$('#sim input').forEach(i => i.addEventListener('input', renderSim));
-$$('.switch button').forEach(b => b.addEventListener('click', () => {
+$$('#seg button').forEach(b => b.addEventListener('click', () => {
   mode = b.dataset.mode;
-  $$('.switch button').forEach(x => x.classList.toggle('on', x === b));
+  $$('#seg button').forEach(x => x.classList.toggle('on', x === b));
+  $('#seg').classList.toggle('draw', mode === 'draw');
   renderSim();
 }));
 renderSim();
@@ -444,25 +605,24 @@ const thread = $('#thread');
 const answers = [
   { keys: ['test date','test dates','when is the test','tp test','theory test'], chip: 'Test dates', reply: () => ({ dates: [
       ['Final Theory Test', 'Wed 4 Nov'], ['Basic Theory Test', 'Tue 10 Nov'], ['Class 3A Practical', 'Mon 23 Nov'],
-      ['Class 3 Practical (manual)', 'Wed 2 Dec'], ['Class 2B Practical', 'Wed 2 Dec'] ], cap: 'Earliest open dates, from the CDC app on 24 Oct' }) },
-  { keys: ['book','slot','lesson','when can i'], chip: 'When can I book lessons?', reply: () => 'New practical lesson slots open every Friday at 8 pm. You can pick your times any time before 8:10 pm, and places are drawn at random, so there\'s no need to be online at exactly 8.' },
-  { keys: ['pick-up','pickup','pick up','kovan','tampines','mrt','where'], chip: 'Pick-up points', reply: () => 'You can be picked up at 6 MRT stations, including Kovan (Exit A, 900 Upper Serangoon Road #01-01) and Tampines. The main centre is at 205 Ubi Avenue 4.' },
-  { keys: ['counter','appointment','walk in','walk-in'], chip: 'Counter appointment', reply: () => 'Counter services are by appointment only, with no walk-ins. You can book an eAppointment slot for Ubi or Kovan, Monday to Friday, 9:30 am to 6 pm.' },
-  { keys: ['person','human','staff','live chat','talk'], chip: 'Talk to a person', reply: () => 'Live chat with our team runs Monday to Friday, 9:30 am to 1 pm and 2:30 pm to 4:30 pm. I can pass them your question now.' },
+      ['Class 3 Practical (manual)', 'Wed 2 Dec'], ['Class 2B Practical', 'Wed 2 Dec'] ], cap: 'Earliest open dates, as of 24 Oct' }) },
+  { keys: ['book','slot','lesson','when can i'], chip: 'When can I book?', reply: () => 'New lesson slots open every Friday at 8 pm. Pick your times any time before 8:10 pm. Places are drawn at random, so you don\'t need to be online at exactly 8.' },
+  { keys: ['pick-up','pickup','pick up','kovan','tampines','mrt','where'], chip: 'Pick-up points', reply: () => 'We pick up at 6 MRT stations, including Kovan (Exit A) and Tampines. The main centre is at 205 Ubi Avenue 4.' },
+  { keys: ['counter','appointment','walk in','walk-in'], chip: 'Counter appointment', reply: () => 'Counters are by appointment only. Book an eAppointment for Ubi or Kovan, weekdays 9:30 am to 6 pm.' },
+  { keys: ['person','human','staff','live chat','talk'], chip: 'Talk to a person', reply: () => 'Our team is on live chat weekdays, 9:30 am to 1 pm and 2:30 to 4:30 pm. Want me to pass your question on?' },
 ];
+function scrollDown() { const s = $('#cScroll'); s.scrollTo({ top: s.scrollHeight, behavior: 'smooth' }); }
 function addMsg(text, who) { const d = document.createElement('div'); d.className = 'msg ' + who; d.textContent = text; thread.appendChild(d); scrollDown(); }
-function scrollDown() { const s = $('#cScroll'); s.scrollTop = s.scrollHeight; }
-function addChips() {
-  const c = document.createElement('div'); c.className = 'chips';
-  answers.forEach(a => { const b = document.createElement('button'); b.className = 'chip'; b.textContent = a.chip; b.onclick = () => askCandice(a.chip); c.appendChild(b); });
-  thread.appendChild(c); scrollDown();
-}
+answers.forEach(a => { const b = document.createElement('button'); b.className = 'chip press'; b.type = 'button'; b.textContent = a.chip; b.onclick = () => askCandice(a.chip); $('#chips').appendChild(b); });
 function askCandice(q) {
   addMsg(q, 'me');
   const ql = q.toLowerCase();
   const hit = answers.find(a => a.chip.toLowerCase() === ql) || answers.find(a => a.keys.some(k => ql.includes(k)));
+  const dots = document.createElement('div'); dots.className = 'msg bot typing'; dots.innerHTML = '<i></i><i></i><i></i>';
+  setTimeout(() => { thread.appendChild(dots); scrollDown(); }, 200);
   setTimeout(() => {
-    if (!hit) { addMsg('I\'m not sure about that one. Live chat with our team runs on weekdays, 9:30 am to 4:30 pm, and they can help.', 'bot'); return; }
+    dots.remove();
+    if (!hit) { addMsg('I\'m not sure about that one. Our team is on live chat weekdays, 9:30 am to 4:30 pm.', 'bot'); return; }
     const r = hit.reply();
     if (typeof r === 'string') addMsg(r, 'bot');
     else {
@@ -470,10 +630,9 @@ function askCandice(q) {
       d.innerHTML = r.dates.map(x => `<div><span>${x[0]}</span><b>${x[1]}</b></div>`).join('') + `<div class="cap">${r.cap}</div>`;
       thread.appendChild(d); scrollDown();
     }
-  }, 350);
+  }, 900);
 }
-addMsg('Hi! I can help with lessons, test dates, pick-up points and appointments.', 'bot');
-addChips();
+addMsg('Hi Wei Ling. I can help with lessons, test dates, pick-up points and appointments.', 'bot');
 $('#cForm').addEventListener('submit', e => { e.preventDefault(); const v = $('#cInput').value.trim(); if (v) { $('#cInput').value = ''; askCandice(v); } });
 </script>
 </body>
