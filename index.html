@@ -1,0 +1,480 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CDC App Concept</title>
+<meta name="description" content="A working concept for the ComfortDelGro Driving Centre app, by King Shelton.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Semi+Condensed:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blue: #1478F0;
+    --blue-deep: #0B3F86;
+    --ink: #13233A;
+    --muted: #5B6B80;
+    --line: #DCE3EC;
+    --tarmac: #2A3038;
+    --amber: #F2B705;
+    --paper: #F5F7FA;
+    --ok: #1E8E5A;
+    --bad: #C2410C;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body { font-family: Barlow, system-ui, sans-serif; color: var(--ink); background: #E3E8EF; -webkit-font-smoothing: antialiased; }
+  button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+  button:focus-visible, input:focus-visible { outline: 3px solid var(--amber); outline-offset: 2px; }
+
+  /* desktop: phone on the right, notes on the left */
+  .stage { min-height: 100%; display: flex; align-items: center; justify-content: center; gap: 56px; padding: 32px 24px; }
+  .notes { max-width: 340px; }
+  .notes h1 { font: 800 34px/1.05 'Barlow Semi Condensed'; }
+  .notes p { font-size: 16px; line-height: 1.5; color: var(--muted); margin-top: 12px; }
+  .notes nav { display: grid; gap: 8px; margin-top: 22px; }
+  .notes nav button { text-align: left; padding: 12px 14px; border-radius: 10px; background: #fff; border: 1px solid var(--line); font-weight: 600; font-size: 15px; }
+  .notes nav button span { display: block; font-weight: 400; font-size: 13.5px; color: var(--muted); }
+  .notes nav button.on { border-color: var(--blue); box-shadow: inset 3px 0 0 var(--blue); }
+  .notes .by { margin-top: 22px; font-size: 14px; color: var(--muted); }
+  .notes .by a { color: var(--blue-deep); }
+
+  .phone { width: 390px; height: 844px; background: #fff; border-radius: 44px; box-shadow: 0 0 0 10px #12161C, 0 30px 60px rgba(18,22,28,.25); overflow: hidden; position: relative; display: flex; flex-direction: column; flex: none; }
+  @media (max-width: 860px) {
+    body { background: #fff; }
+    .stage { padding: 0; display: block; }
+    .notes { display: none; }
+    .phone { width: 100%; height: 100dvh; border-radius: 0; box-shadow: none; }
+  }
+
+  .screen { position: absolute; inset: 0; display: none; flex-direction: column; background: var(--paper); }
+  .screen.on { display: flex; }
+  .scroll { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  .statusbar { height: 46px; flex: none; display: flex; justify-content: space-between; align-items: flex-end; padding: 0 28px 6px; font-weight: 600; font-size: 15px; }
+  .tabbar { flex: none; display: flex; background: #fff; border-top: 1px solid var(--line); padding: 8px 0 calc(16px + env(safe-area-inset-bottom)); }
+  .tabbar button { flex: 1; font-size: 12.5px; font-weight: 600; color: var(--muted); display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 4px 0; }
+  .tabbar svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .tabbar button.on { color: var(--blue); }
+  .appbar { flex: none; display: flex; align-items: center; gap: 10px; padding: 4px 16px 12px; background: #fff; border-bottom: 1px solid var(--line); }
+  .appbar h2 { font: 700 20px 'Barlow Semi Condensed'; }
+  .back { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 10px; }
+  .back::before { content: ""; width: 10px; height: 10px; border-left: 2.5px solid var(--ink); border-bottom: 2.5px solid var(--ink); transform: rotate(45deg); margin-left: 4px; }
+
+  /* home */
+  .h-head { background: var(--blue); color: #fff; padding-bottom: 26px; flex: none; }
+  .h-head .statusbar { color: #fff; }
+  .h-top { display: flex; justify-content: space-between; align-items: center; padding: 6px 20px 0; }
+  .h-top h1 { font: 700 27px 'Barlow Semi Condensed'; }
+  .h-bal { text-align: right; line-height: 1.15; }
+  .h-bal small { display: block; font-size: 12.5px; opacity: .85; }
+  .h-bal b { font: 700 19px 'Barlow Semi Condensed'; }
+  .h-body { padding: 0 16px 16px; display: flex; flex-direction: column; gap: 12px; }
+  .card { background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 16px; }
+  .next { margin-top: -14px; }
+  .k { font-size: 13.5px; color: var(--muted); }
+  .big { font: 800 27px/1.05 'Barlow Semi Condensed'; margin-top: 3px; }
+  .row { display: flex; gap: 8px; margin-top: 12px; }
+  .soft { flex: 1; text-align: center; font-weight: 600; font-size: 15px; padding: 11px; border-radius: 10px; background: var(--paper); color: var(--blue-deep); }
+  .slot { display: flex; align-items: center; gap: 12px; background: var(--tarmac); color: #fff; border-radius: 14px; padding: 13px 14px 13px 18px; position: relative; overflow: hidden; text-align: left; width: 100%; }
+  .slot::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: repeating-linear-gradient(to bottom, var(--amber) 0 10px, transparent 10px 17px); }
+  .slot div { flex: 1; }
+  .slot strong { display: block; font-size: 15.5px; }
+  .slot small { font-size: 13.5px; color: #C3CBD5; }
+  .slot em { font-style: normal; font-weight: 600; font-size: 14px; background: var(--amber); color: var(--ink); padding: 8px 11px; border-radius: 8px; white-space: nowrap; }
+  .grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .grid4 button { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 12px 2px 10px; font-size: 13px; font-weight: 600; line-height: 1.2; }
+  .grid4 svg { width: 24px; height: 24px; stroke: var(--blue); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; display: block; margin: 0 auto 6px; }
+  .prog .top { display: flex; justify-content: space-between; font-size: 14px; }
+  .prog .top b { font-weight: 600; }
+  .bars { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-top: 10px; }
+  .bars i { height: 6px; border-radius: 3px; background: var(--line); }
+  .bars i.done { background: var(--ok); }
+  .bars i.now { background: var(--blue); }
+  .bars-l { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; font-size: 11.5px; color: var(--muted); margin-top: 5px; }
+  .note { display: flex; gap: 10px; align-items: center; font-size: 14px; padding: 2px 4px; }
+  .note i { width: 8px; height: 8px; border-radius: 50%; background: var(--amber); flex: none; }
+  .ad { border-radius: 14px; padding: 14px; background: linear-gradient(120deg, #E4EEFC, #F3F7FD); border: 1px solid #D3E1F6; }
+  .ad small { display: block; font-size: 11.5px; color: var(--muted); }
+  .ad strong { display: block; font: 700 18px 'Barlow Semi Condensed'; margin-top: 2px; }
+  .toast { position: absolute; left: 16px; right: 16px; bottom: 96px; background: var(--ink); color: #fff; border-radius: 12px; padding: 12px 14px; font-size: 14.5px; opacity: 0; transform: translateY(8px); transition: .2s; pointer-events: none; z-index: 9; }
+  .toast.on { opacity: 1; transform: none; }
+
+  /* booking */
+  .b-body { padding: 16px; display: flex; flex-direction: column; gap: 16px; }
+  .when { font: 800 30px/1 'Barlow Semi Condensed'; }
+  .b-body p { font-size: 15px; line-height: 1.45; }
+  .meter { margin-top: 14px; height: 8px; background: var(--paper); border-radius: 4px; overflow: hidden; }
+  .meter b { display: block; height: 100%; background: var(--blue); width: 0; transition: width .25s linear; }
+  .meter-cap { display: flex; justify-content: space-between; font-size: 12.5px; color: var(--muted); margin-top: 6px; }
+  h3 { font: 700 17px 'Barlow Semi Condensed'; }
+  .hint { font-size: 13.5px; color: var(--muted); margin-top: 2px; }
+  .tgrid { display: grid; grid-template-columns: 40px repeat(5, 1fr); gap: 6px; margin-top: 10px; font-size: 13px; }
+  .tgrid .h { color: var(--muted); text-align: center; font-weight: 600; }
+  .tgrid .d { color: var(--muted); font-weight: 600; align-self: center; }
+  .cell { height: 38px; border-radius: 8px; background: #fff; border: 1.5px solid var(--line); }
+  .cell.on { background: var(--blue); border-color: var(--blue); }
+  .primary { width: 100%; font-weight: 600; font-size: 17px; background: var(--blue); color: #fff; border-radius: 12px; padding: 15px; }
+  .primary:disabled { background: #A9C6EE; cursor: default; }
+  .ghost { width: 100%; font-weight: 600; font-size: 16px; background: #fff; color: var(--blue-deep); border: 1.5px solid var(--line); border-radius: 12px; padding: 13px; }
+  .joined { display: flex; gap: 12px; align-items: flex-start; background: #E7F5EE; border-radius: 14px; padding: 14px; }
+  .tick { width: 26px; height: 26px; border-radius: 50%; background: var(--ok); display: grid; place-items: center; flex: none; }
+  .tick::after { content: ""; width: 10px; height: 5px; border-left: 2.5px solid #fff; border-bottom: 2.5px solid #fff; transform: rotate(-45deg) translate(1px,-1px); }
+  .joined strong { display: block; font-size: 15.5px; color: #135C3A; }
+  .joined span { font-size: 14px; line-height: 1.4; color: #24533D; }
+  .lessons { display: grid; gap: 8px; margin-top: 10px; }
+  .lesson { display: flex; justify-content: space-between; align-items: center; background: var(--paper); border-radius: 10px; padding: 11px 12px; font-size: 15px; }
+  .lesson b { font-weight: 600; }
+  .lesson span { color: var(--muted); font-size: 13.5px; }
+  .demo-note { font-size: 12.5px; color: var(--muted); text-align: center; }
+
+  /* candice */
+  .c-head { display: flex; align-items: center; gap: 12px; }
+  .avatar { width: 38px; height: 38px; border-radius: 50%; background: var(--blue); color: #fff; display: grid; place-items: center; font: 700 18px 'Barlow Semi Condensed'; flex: none; }
+  .c-head strong { display: block; font-size: 17px; }
+  .c-head small { font-size: 13px; color: var(--ok); }
+  .thread { padding: 16px 14px; display: flex; flex-direction: column; gap: 10px; }
+  .msg { max-width: 86%; font-size: 15px; line-height: 1.42; padding: 11px 14px; border-radius: 16px; white-space: pre-line; }
+  .bot { background: #fff; border: 1px solid var(--line); border-bottom-left-radius: 4px; align-self: flex-start; }
+  .me { background: var(--blue); color: #fff; border-bottom-right-radius: 4px; align-self: flex-end; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { font-size: 14px; font-weight: 500; padding: 8px 12px; border-radius: 999px; background: #fff; border: 1.5px solid #BFD6F6; color: var(--blue-deep); }
+  .dates { background: #fff; border: 1px solid var(--line); border-radius: 16px; border-bottom-left-radius: 4px; align-self: flex-start; width: 86%; overflow: hidden; }
+  .dates div { display: flex; justify-content: space-between; padding: 9px 14px; font-size: 14.5px; border-top: 1px solid var(--line); }
+  .dates div:first-child { border-top: 0; }
+  .dates b { font-weight: 600; white-space: nowrap; padding-left: 10px; }
+  .dates .cap { font-size: 12.5px; color: var(--muted); }
+  .composer { flex: none; display: flex; gap: 10px; align-items: center; padding: 10px 14px calc(14px + env(safe-area-inset-bottom)); border-top: 1px solid var(--line); background: #fff; }
+  .composer input { flex: 1; border: 1.5px solid var(--line); border-radius: 999px; padding: 11px 16px; font: 15px Barlow; color: var(--ink); min-width: 0; }
+  .send { width: 42px; height: 42px; border-radius: 50%; background: var(--blue); display: grid; place-items: center; flex: none; }
+  .send::after { content: ""; border-left: 12px solid #fff; border-top: 7px solid transparent; border-bottom: 7px solid transparent; margin-left: 3px; }
+
+  /* simulator */
+  .s-body { padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+  .s-body > p { font-size: 15px; line-height: 1.45; }
+  .ctl { display: grid; gap: 4px; }
+  .ctl label { display: flex; justify-content: space-between; font-size: 14.5px; }
+  .ctl label b { font-weight: 600; }
+  .ctl input { width: 100%; accent-color: var(--blue); }
+  .switch { display: grid; grid-template-columns: 1fr 1fr; background: #E6EBF1; border-radius: 12px; padding: 4px; }
+  .switch button { padding: 10px 6px; border-radius: 9px; font-weight: 600; font-size: 14.5px; color: var(--muted); }
+  .switch button.on { background: #fff; color: var(--ink); box-shadow: 0 1px 2px rgba(19,35,58,.12); }
+  .result .line { margin-top: 12px; }
+  .result .lbl { display: flex; justify-content: space-between; font-size: 14px; }
+  .result .lbl b { font-weight: 700; }
+  .track { height: 14px; border-radius: 7px; background: var(--paper); overflow: hidden; margin-top: 5px; }
+  .track b { display: block; height: 100%; width: 0; border-radius: 7px; transition: width .5s ease; }
+  .track.bots b { background: var(--bad); }
+  .track.ppl b { background: var(--ok); }
+  .verdict { font: 700 21px/1.2 'Barlow Semi Condensed'; }
+  .verdict.bad { color: var(--bad); }
+  .verdict.good { color: var(--ok); }
+  .small { font-size: 13px; color: var(--muted); line-height: 1.45; }
+  .strip { display: none; }
+  @media (max-width: 860px) { .strip { display: block; flex: none; background: var(--amber); color: var(--ink); font-size: 12.5px; font-weight: 600; text-align: center; padding: 6px 10px; position: relative; z-index: 5; } .screen { top: 29px; } }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="stage">
+  <aside class="notes">
+    <h1>CDC app, reworked</h1>
+    <p>A working concept by a CDC learner. Tap through it on the phone, or open this link on your own phone. Unofficial, and not connected to CDC's systems.</p>
+    <nav id="jump">
+      <button data-go="home" class="on">App home<span>Next lesson first, ads lower down</span></button>
+      <button data-go="book">Booking with a random draw<span>No reason to refresh or use a bot</span></button>
+      <button data-go="sim">Race vs draw<span>What share of slots bots get under each</span></button>
+      <button data-go="candice">Ask Candice<span>Suggested questions and real answers</span></button>
+    </nav>
+    <p class="by">King Shelton, Singapore Polytechnic<br><a href="https://kingshelton.com">kingshelton.com</a> &nbsp; 8921 9715</p>
+  </aside>
+
+  <main class="phone" aria-label="App concept">
+    <div class="strip">Unofficial concept by King Shelton. Not the real CDC app.</div>
+
+    <!-- HOME -->
+    <section class="screen on" id="home">
+      <div class="scroll">
+        <div class="h-head">
+          <div class="statusbar"><span>9:41</span><span>5G</span></div>
+          <div class="h-top">
+            <h1>Hi, Wei Ling</h1>
+            <div class="h-bal"><small>Balance</small><b>S$120.00</b></div>
+          </div>
+        </div>
+        <div class="h-body">
+          <div class="card next">
+            <div class="k">Next lesson</div>
+            <div class="big">Tue 28 Oct, 7:30 pm</div>
+            <div style="font-size:15px;margin-top:4px">Practical lesson, pick-up at Kovan MRT Exit A</div>
+            <div class="row"><button class="soft" data-toast="Opens Google Maps to Kovan MRT Exit A">Directions</button><button class="soft" data-toast="Shows other times you could move this lesson to">Reschedule</button></div>
+          </div>
+          <button class="slot" data-go="book">
+            <div><strong>Lesson slots open Fri, 8 pm</strong><small>Tap to pick your times now</small></div>
+            <em>Pick times</em>
+          </button>
+          <div class="grid4">
+            <button data-go="book"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Book lesson</button>
+            <button data-toast="Your upcoming and past lessons"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg>My bookings</button>
+            <button data-go="candice" data-ask="Test dates"><svg viewBox="0 0 24 24"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9"/></svg>Test dates</button>
+            <button data-toast="Top up with PayNow or card"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M16 15h2"/></svg>Top up</button>
+          </div>
+          <div class="card prog">
+            <div class="top"><b>Class 3A licence</b><span class="k">Practical lessons</span></div>
+            <div class="bars"><i class="done"></i><i class="done"></i><i class="now"></i><i></i></div>
+            <div class="bars-l"><span>Basic theory</span><span>Final theory</span><span>Lessons</span><span>TP test</span></div>
+          </div>
+          <div class="note"><i></i><span>Booking portal maintenance, Sun 11 pm to 1 am</span></div>
+          <div class="ad"><small>Sponsored</small><strong>Passed your test? Insure your first car</strong></div>
+        </div>
+      </div>
+      <nav class="tabbar">
+        <button class="on" data-go="home"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Home</button>
+        <button data-go="book"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Book</button>
+        <button data-go="sim"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Fairness</button>
+        <button data-go="candice"><svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>Candice</button>
+      </nav>
+    </section>
+
+    <!-- BOOK -->
+    <section class="screen" id="book">
+      <div class="statusbar" style="background:#fff"><span>9:41</span><span>5G</span></div>
+      <div class="appbar"><button class="back" data-go="home" aria-label="Back"></button><h2>Book practical lessons</h2></div>
+      <div class="scroll">
+        <div class="b-body" id="bookBody"></div>
+      </div>
+    </section>
+
+    <!-- SIM -->
+    <section class="screen" id="sim">
+      <div class="statusbar" style="background:#fff"><span>9:41</span><span>5G</span></div>
+      <div class="appbar"><button class="back" data-go="home" aria-label="Back"></button><h2>Race vs draw</h2></div>
+      <div class="scroll">
+        <div class="s-body">
+          <p>Lesson slots open at a set time. Here's who ends up with them when it's a race, and when it's a random draw.</p>
+          <div class="card" style="display:grid;gap:14px">
+            <div class="ctl"><label for="sLearners">Learners trying to book <b id="vLearners"></b></label><input type="range" id="sLearners" min="200" max="4000" step="100" value="2000"></div>
+            <div class="ctl"><label for="sSlots">Slots released <b id="vSlots"></b></label><input type="range" id="sSlots" min="50" max="1500" step="50" value="600"></div>
+            <div class="ctl"><label for="sBots">Learners using a bot <b id="vBots"></b></label><input type="range" id="sBots" min="1" max="30" step="1" value="5"></div>
+          </div>
+          <div class="switch" role="tablist">
+            <button class="on" data-mode="race">First come, first served</button>
+            <button data-mode="draw">Random draw</button>
+          </div>
+          <div class="card result">
+            <div class="verdict" id="verdict"></div>
+            <div class="line">
+              <div class="lbl"><span>Bot users' share of learners</span><b id="rShareP"></b></div>
+              <div class="track ppl"><b id="tShareP"></b></div>
+            </div>
+            <div class="line">
+              <div class="lbl"><span>Bot users' share of slots</span><b id="rShareS"></b></div>
+              <div class="track bots"><b id="tShareS"></b></div>
+            </div>
+            <div class="line">
+              <div class="lbl"><span>Learners without a bot who got a slot</span><b id="rHuman"></b></div>
+            </div>
+          </div>
+          <p class="small" id="how"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- CANDICE -->
+    <section class="screen" id="candice">
+      <div class="statusbar" style="background:#fff"><span>9:41</span><span>5G</span></div>
+      <div class="appbar"><button class="back" data-go="home" aria-label="Back"></button>
+        <div class="c-head"><span class="avatar">C</span><div><strong>Candice</strong><small>CDC assistant</small></div></div>
+      </div>
+      <div class="scroll" id="cScroll"><div class="thread" id="thread"></div></div>
+      <form class="composer" id="cForm"><input id="cInput" placeholder="Ask about lessons, tests, getting here" autocomplete="off" aria-label="Message Candice"><button class="send" aria-label="Send"></button></form>
+    </section>
+
+    <div class="toast" id="toast"></div>
+  </main>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+
+/* navigation */
+function go(id, ask) {
+  $$('.screen').forEach(s => s.classList.toggle('on', s.id === id));
+  $$('#jump button').forEach(b => b.classList.toggle('on', b.dataset.go === id));
+  $$('.tabbar button').forEach(b => b.classList.toggle('on', b.dataset.go === id));
+  if (id === 'candice' && ask) setTimeout(() => askCandice(ask), 150);
+}
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-go],[data-toast]');
+  if (!t) return;
+  if (t.dataset.go) go(t.dataset.go, t.dataset.ask);
+  if (t.dataset.toast) toast(t.dataset.toast);
+});
+let toastTimer;
+function toast(msg) {
+  const el = $('#toast'); el.textContent = msg; el.classList.add('on');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => el.classList.remove('on'), 2200);
+}
+
+/* booking */
+const days = ['Mon','Tue','Wed','Thu','Fri'];
+const parts = [['AM','8:30 am'],['PM','2:00 pm'],['Eve','7:30 pm']];
+let picked = new Set(['0-2','1-2','3-0']);
+let state = 'pick', countdown = 0, timer;
+
+function renderBook() {
+  const b = $('#bookBody');
+  if (state === 'pick') {
+    b.innerHTML = `
+      <div class="card">
+        <div class="k">Next slot release</div>
+        <div class="when">Friday, 8:00 pm</div>
+        <p style="margin-top:10px">Pick the times that suit you any time before 8:10 pm. When the window closes, everyone who joined gets a random place in the queue. Joining at 8:00 or 8:09 makes no difference.</p>
+      </div>
+      <div>
+        <h3>Times that suit you</h3>
+        <div class="hint">Pick at least 2. More picks, better odds.</div>
+        <div class="tgrid">
+          <span></span>${days.map(d => `<span class="h">${d}</span>`).join('')}
+          ${parts.map((p,pi) => `<span class="d">${p[0]}</span>` + days.map((d,di) => `<button class="cell ${picked.has(di+'-'+pi)?'on':''}" data-cell="${di}-${pi}" aria-label="${d} ${p[0]}" aria-pressed="${picked.has(di+'-'+pi)}"></button>`).join('')).join('')}
+        </div>
+      </div>
+      <button class="primary" id="join" ${picked.size < 2 ? 'disabled' : ''}>Join Friday's release</button>
+      <p class="demo-note">In this demo the 10-minute window runs in 8 seconds.</p>`;
+  } else if (state === 'waiting') {
+    const pct = Math.round((1 - countdown / 8) * 100);
+    b.innerHTML = `
+      <div class="joined"><span class="tick"></span><div><strong>You're in Friday's release</strong><span>You picked ${picked.size} times. No need to stay on this screen or keep refreshing.</span></div></div>
+      <div class="card">
+        <div class="k">Window closes in</div>
+        <div class="when">0:0${countdown}</div>
+        <div class="meter"><b style="width:${pct}%"></b></div>
+        <div class="meter-cap"><span>8:00 pm</span><span>8:10 pm</span></div>
+      </div>
+      <button class="ghost" id="edit">Change my times</button>`;
+  } else {
+    const mine = [...picked].sort().map(k => { const [d,p] = k.split('-').map(Number); return { d, p }; });
+    const got = mine.filter((_, i) => i % 3 !== 1).slice(0, 3);
+    b.innerHTML = `
+      <div class="joined"><span class="tick"></span><div><strong>You got ${got.length} lesson${got.length>1?'s':''}</strong><span>Your queue number was 412 of 1,530. We matched you to the times you picked and sent them by SMS.</span></div></div>
+      <div class="card">
+        <h3>Your new lessons</h3>
+        <div class="lessons">${got.map(g => `<div class="lesson"><b>${days[g.d]}, ${parts[g.p][1]}</b><span>Practical, pick-up Kovan</span></div>`).join('')}</div>
+      </div>
+      <button class="ghost" id="again">Try the demo again</button>`;
+  }
+}
+$('#bookBody').addEventListener('click', e => {
+  const c = e.target.closest('[data-cell]');
+  if (c) { const k = c.dataset.cell; picked.has(k) ? picked.delete(k) : picked.add(k); renderBook(); return; }
+  if (e.target.id === 'join') {
+    state = 'waiting'; countdown = 8; renderBook();
+    clearInterval(timer);
+    timer = setInterval(() => { countdown--; if (countdown <= 0) { clearInterval(timer); state = 'done'; } renderBook(); }, 1000);
+  }
+  if (e.target.id === 'edit') { clearInterval(timer); state = 'pick'; renderBook(); }
+  if (e.target.id === 'again') { state = 'pick'; renderBook(); }
+});
+renderBook();
+
+/* race vs draw */
+let mode = 'race';
+const ACCOUNTS_PER_BOT_USER = 2;   // without Singpass, one person can run several accounts
+const SLOTS_PER_ENTRY = 1;
+function rand(seed) { return () => (seed = (seed * 16807) % 2147483647) / 2147483647; }
+
+function simulate(learners, slots, botPct, mode) {
+  const r = rand(42 + learners + slots * 7 + botPct * 131);
+  const botUsers = Math.round(learners * botPct / 100);
+  const entries = [];
+  for (let i = 0; i < learners; i++) {
+    const isBot = i < botUsers;
+    if (mode === 'race') {
+      // a person reacts in 1.5 to 20 seconds; a bot in 0.05 to 0.5 seconds, on each account it runs
+      const n = isBot ? ACCOUNTS_PER_BOT_USER : 1;
+      for (let a = 0; a < n; a++) entries.push({ who: i, isBot, t: isBot ? 0.05 + r() * 0.45 : 1.5 + Math.pow(r(), 2) * 18.5 });
+    } else {
+      // one entry per Singpass identity, random order
+      entries.push({ who: i, isBot, t: r() });
+    }
+  }
+  entries.sort((a, b) => a.t - b.t);
+  let left = slots, botSlots = 0, humanGot = new Set();
+  for (const e of entries) {
+    if (left <= 0) break;
+    left -= SLOTS_PER_ENTRY;
+    if (e.isBot) botSlots++; else humanGot.add(e.who);
+  }
+  const given = slots - Math.max(left, 0);
+  return { botUsers, shareP: botUsers / learners, shareS: botSlots / given, humanRate: humanGot.size / (learners - botUsers) };
+}
+
+function renderSim() {
+  const L = +$('#sLearners').value, S = +$('#sSlots').value, B = +$('#sBots').value;
+  $('#vLearners').textContent = L.toLocaleString();
+  $('#vSlots').textContent = S.toLocaleString();
+  $('#vBots').textContent = B + '%';
+  const res = simulate(L, S, B, mode);
+  const pct = x => Math.round(x * 100) + '%';
+  $('#rShareP').textContent = pct(res.shareP);
+  $('#rShareS').textContent = pct(res.shareS);
+  $('#tShareP').style.width = pct(res.shareP);
+  $('#tShareS').style.width = pct(res.shareS);
+  $('#rHuman').textContent = pct(res.humanRate);
+  const v = $('#verdict');
+  if (mode === 'race') {
+    v.className = 'verdict bad';
+    v.textContent = `${pct(res.shareP)} of learners use bots and take ${pct(res.shareS)} of slots.`;
+    $('#how').textContent = `How this is worked out: people react in 1.5 to 20 seconds and bots in under half a second. Without Singpass, each bot user runs ${ACCOUNTS_PER_BOT_USER} accounts.`;
+  } else {
+    v.className = 'verdict good';
+    v.textContent = `Bots get about their fair share: ${pct(res.shareS)} of slots.`;
+    $('#how').textContent = 'How this is worked out: one entry per Singpass login, and the queue order is random, so speed and extra accounts do nothing.';
+  }
+}
+$$('#sim input').forEach(i => i.addEventListener('input', renderSim));
+$$('.switch button').forEach(b => b.addEventListener('click', () => {
+  mode = b.dataset.mode;
+  $$('.switch button').forEach(x => x.classList.toggle('on', x === b));
+  renderSim();
+}));
+renderSim();
+
+/* candice */
+const thread = $('#thread');
+const answers = [
+  { keys: ['test date','test dates','when is the test','tp test','theory test'], chip: 'Test dates', reply: () => ({ dates: [
+      ['Final Theory Test', 'Wed 4 Nov'], ['Basic Theory Test', 'Tue 10 Nov'], ['Class 3A Practical', 'Mon 23 Nov'],
+      ['Class 3 Practical (manual)', 'Wed 2 Dec'], ['Class 2B Practical', 'Wed 2 Dec'] ], cap: 'Earliest open dates, from the CDC app on 24 Oct' }) },
+  { keys: ['book','slot','lesson','when can i'], chip: 'When can I book lessons?', reply: () => 'New practical lesson slots open every Friday at 8 pm. You can pick your times any time before 8:10 pm, and places are drawn at random, so there\'s no need to be online at exactly 8.' },
+  { keys: ['pick-up','pickup','pick up','kovan','tampines','mrt','where'], chip: 'Pick-up points', reply: () => 'You can be picked up at 6 MRT stations, including Kovan (Exit A, 900 Upper Serangoon Road #01-01) and Tampines. The main centre is at 205 Ubi Avenue 4.' },
+  { keys: ['counter','appointment','walk in','walk-in'], chip: 'Counter appointment', reply: () => 'Counter services are by appointment only, with no walk-ins. You can book an eAppointment slot for Ubi or Kovan, Monday to Friday, 9:30 am to 6 pm.' },
+  { keys: ['person','human','staff','live chat','talk'], chip: 'Talk to a person', reply: () => 'Live chat with our team runs Monday to Friday, 9:30 am to 1 pm and 2:30 pm to 4:30 pm. I can pass them your question now.' },
+];
+function addMsg(text, who) { const d = document.createElement('div'); d.className = 'msg ' + who; d.textContent = text; thread.appendChild(d); scrollDown(); }
+function scrollDown() { const s = $('#cScroll'); s.scrollTop = s.scrollHeight; }
+function addChips() {
+  const c = document.createElement('div'); c.className = 'chips';
+  answers.forEach(a => { const b = document.createElement('button'); b.className = 'chip'; b.textContent = a.chip; b.onclick = () => askCandice(a.chip); c.appendChild(b); });
+  thread.appendChild(c); scrollDown();
+}
+function askCandice(q) {
+  addMsg(q, 'me');
+  const ql = q.toLowerCase();
+  const hit = answers.find(a => a.chip.toLowerCase() === ql) || answers.find(a => a.keys.some(k => ql.includes(k)));
+  setTimeout(() => {
+    if (!hit) { addMsg('I\'m not sure about that one. Live chat with our team runs on weekdays, 9:30 am to 4:30 pm, and they can help.', 'bot'); return; }
+    const r = hit.reply();
+    if (typeof r === 'string') addMsg(r, 'bot');
+    else {
+      const d = document.createElement('div'); d.className = 'dates';
+      d.innerHTML = r.dates.map(x => `<div><span>${x[0]}</span><b>${x[1]}</b></div>`).join('') + `<div class="cap">${r.cap}</div>`;
+      thread.appendChild(d); scrollDown();
+    }
+  }, 350);
+}
+addMsg('Hi! I can help with lessons, test dates, pick-up points and appointments.', 'bot');
+addChips();
+$('#cForm').addEventListener('submit', e => { e.preventDefault(); const v = $('#cInput').value.trim(); if (v) { $('#cInput').value = ''; askCandice(v); } });
+</script>
+</body>
+</html>
